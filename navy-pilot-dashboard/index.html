@@ -4,502 +4,1151 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TACAMO Pilot Training Dashboard</title>
-  <link rel="stylesheet" href="styles.css">
+<style>
+/* ===== CSS Variables / Theme ===== */
+:root {
+  --navy-900: #0a1628;
+  --navy-800: #111d35;
+  --navy-700: #182a4a;
+  --navy-600: #1f3a63;
+  --navy-500: #2a4f82;
+  --navy-400: #3a6baa;
+  --navy-300: #5a8fd4;
+  --navy-200: #8cb4e8;
+  --navy-100: #c5d9f2;
+  --navy-50:  #e8f0fa;
+
+  --gold-500: #c9a227;
+  --gold-400: #dbb840;
+  --gold-300: #e8cf6a;
+
+  --green-500: #22c55e;
+  --green-600: #16a34a;
+
+  --red-500: #ef4444;
+  --red-600: #dc2626;
+
+  --amber-500: #f59e0b;
+
+  --gray-50:  #f8fafc;
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-300: #cbd5e1;
+  --gray-400: #94a3b8;
+  --gray-500: #64748b;
+  --gray-600: #475569;
+  --gray-700: #334155;
+  --gray-800: #1e293b;
+  --gray-900: #0f172a;
+
+  --font-sans: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  --radius: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+}
+
+/* ===== Reset & Base ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--gray-100);
+  color: var(--gray-800);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* ===== Header ===== */
+header {
+  background: linear-gradient(135deg, var(--navy-900) 0%, var(--navy-700) 100%);
+  color: #fff;
+  padding: 1rem 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.header-content {
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-left h1 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.header-subtitle {
+  font-size: 0.8rem;
+  color: var(--navy-200);
+  letter-spacing: 0.3px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.readiness-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--navy-200);
+  display: block;
+  text-align: center;
+  margin-bottom: 0.15rem;
+}
+
+.readiness-ring svg {
+  width: 52px;
+  height: 52px;
+  display: block;
+}
+
+.ring-bg {
+  fill: none;
+  stroke: var(--navy-600);
+  stroke-width: 3;
+}
+
+.ring-fg {
+  fill: none;
+  stroke: var(--gold-400);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.5s ease;
+}
+
+.ring-text {
+  fill: #fff;
+  font-size: 0.55rem;
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.btn-icon {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: var(--navy-200);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-icon:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+/* ===== Tab Bar ===== */
+.tab-bar {
+  background: #fff;
+  border-bottom: 1px solid var(--gray-200);
+  display: flex;
+  max-width: 960px;
+  margin: 0 auto;
+  position: sticky;
+  top: 74px;
+  z-index: 90;
+}
+
+.tab {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  color: var(--gray-500);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+}
+.tab:hover { color: var(--navy-600); background: var(--gray-50); }
+.tab.active { color: var(--navy-700); border-bottom-color: var(--gold-400); }
+
+/* ===== Main Content ===== */
+main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1rem 1rem 3rem;
+}
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ===== Cards ===== */
+.card {
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+  border: 1px solid var(--gray-200);
+}
+
+.card-header {
+  padding: 0.85rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+.card-header:hover { background: var(--gray-50); }
+
+.card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.card-header-left h2 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--gray-800);
+}
+
+.card-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.chevron {
+  font-size: 0.7rem;
+  color: var(--gray-400);
+  transition: transform 0.2s;
+}
+.chevron.open { transform: rotate(180deg); }
+
+.card-body { padding: 0 1rem 1rem; }
+.card-body.collapsed { display: none; }
+
+/* ===== Status Dots ===== */
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--gray-300);
+  flex-shrink: 0;
+}
+.status-dot.not-started { background: var(--gray-300); }
+.status-dot.in-progress { background: var(--amber-500); }
+.status-dot.complete    { background: var(--green-500); }
+
+/* ===== Progress Bars ===== */
+.progress-bar-mini {
+  width: 80px;
+  height: 6px;
+  background: var(--gray-200);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--navy-400), var(--gold-400));
+  border-radius: 3px;
+  transition: width 0.4s ease;
+  width: 0%;
+}
+.progress-text {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--gray-500);
+  min-width: 32px;
+  text-align: right;
+}
+
+/* ===== Checklists ===== */
+.pqs-section { margin-bottom: 1rem; }
+.pqs-section h3 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--navy-500);
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--gray-700);
+  transition: background 0.1s;
+}
+.check-item:hover { background: var(--gray-50); }
+
+.check-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--navy-500);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.check-item.checked {
+  color: var(--gray-400);
+  text-decoration: line-through;
+  text-decoration-color: var(--gray-300);
+}
+
+/* ===== Notes ===== */
+.milestone-notes {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--gray-100);
+}
+.milestone-notes label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  display: block;
+  margin-bottom: 0.3rem;
+}
+.milestone-notes textarea {
+  width: 100%;
+  min-height: 60px;
+  border: 1px solid var(--gray-200);
+  border-radius: 4px;
+  padding: 0.5rem;
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  color: var(--gray-700);
+  resize: vertical;
+  transition: border-color 0.2s;
+}
+.milestone-notes textarea:focus {
+  outline: none;
+  border-color: var(--navy-400);
+  box-shadow: 0 0 0 2px rgba(42,79,130,0.15);
+}
+
+/* ===== Date / Number Tracker ===== */
+.date-tracker { margin-top: 0.75rem; }
+.date-tracker h3 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--navy-500);
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.date-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.3rem 0.5rem;
+  gap: 1rem;
+}
+.date-row label {
+  font-size: 0.82rem;
+  color: var(--gray-600);
+  flex-shrink: 0;
+}
+.date-row input[type="date"],
+.date-row input[type="number"] {
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--gray-200);
+  border-radius: 4px;
+  font-size: 0.82rem;
+  font-family: var(--font-sans);
+  color: var(--gray-700);
+  max-width: 180px;
+  width: 100%;
+}
+.date-row input:focus {
+  outline: none;
+  border-color: var(--navy-400);
+  box-shadow: 0 0 0 2px rgba(42,79,130,0.15);
+}
+
+/* ===== Cycle Section ===== */
+.cycle-section { margin-bottom: 0.75rem; }
+.cycle-section h3 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--navy-500);
+  margin-bottom: 0.5rem;
+}
+.cycle-row { display: flex; gap: 1rem; margin-bottom: 0.75rem; }
+.cycle-field { display: flex; flex-direction: column; gap: 0.2rem; }
+.cycle-field label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.cycle-field select,
+.cycle-field input {
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--gray-200);
+  border-radius: 4px;
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  color: var(--gray-700);
+}
+.cycle-field select:focus,
+.cycle-field input:focus { outline: none; border-color: var(--navy-400); }
+
+/* ===== Modal ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal-overlay.visible { display: flex; }
+
+.modal {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.modal h3 { font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--gray-800); }
+.modal p { font-size: 0.85rem; color: var(--gray-600); margin-bottom: 1.25rem; }
+.modal-actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
+
+.btn {
+  padding: 0.45rem 1rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+.btn-secondary { background: var(--gray-100); color: var(--gray-700); border-color: var(--gray-300); }
+.btn-secondary:hover { background: var(--gray-200); }
+.btn-danger { background: var(--red-500); color: #fff; }
+.btn-danger:hover { background: var(--red-600); }
+
+/* ===== Responsive ===== */
+@media (max-width: 640px) {
+  header { padding: 0.75rem 1rem; }
+  .header-left h1 { font-size: 1.1rem; }
+  .header-subtitle { font-size: 0.7rem; }
+  .tab { font-size: 0.75rem; padding: 0.6rem 0.5rem; }
+  main { padding: 0.75rem 0.5rem 2rem; }
+  .card-header-left h2 { font-size: 0.85rem; }
+  .progress-bar-mini { width: 50px; }
+  .date-row { flex-direction: column; align-items: flex-start; gap: 0.2rem; }
+  .date-row input[type="date"],
+  .date-row input[type="number"] { max-width: 100%; }
+  .cycle-row { flex-direction: column; }
+}
+
+/* ===== Print ===== */
+@media print {
+  header { position: static; }
+  .tab-bar { display: none; }
+  .tab-content { display: block !important; }
+  .card-body.collapsed { display: block !important; }
+  .btn-icon, .modal-overlay { display: none; }
+  .card { break-inside: avoid; }
+}
+</style>
 </head>
 <body>
-  <header>
-    <div class="header-content">
-      <div class="header-left">
-        <h1>TACAMO Pilot Dashboard</h1>
-        <span class="header-subtitle">E-6B Mercury &mdash; Training &amp; Readiness Tracker</span>
-      </div>
-      <div class="header-right">
-        <div class="overall-readiness">
-          <span class="readiness-label">Overall Readiness</span>
-          <div class="readiness-ring">
-            <svg viewBox="0 0 36 36">
-              <path class="ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-              <path id="overall-ring" class="ring-fg" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-              <text x="18" y="20.35" id="overall-pct" class="ring-text">0%</text>
-            </svg>
-          </div>
-        </div>
-        <button class="btn-icon" id="btn-reset" title="Reset all data">&#x21bb;</button>
-      </div>
+
+<header>
+  <div class="header-content">
+    <div class="header-left">
+      <h1>TACAMO Pilot Dashboard</h1>
+      <span class="header-subtitle">E-6B Mercury &mdash; Training &amp; Readiness Tracker</span>
     </div>
-  </header>
-
-  <nav class="tab-bar">
-    <button class="tab active" data-tab="qualification">Qualification Pipeline</button>
-    <button class="tab" data-tab="officer">Officer Requirements</button>
-    <button class="tab" data-tab="currency">Flight Currency</button>
-  </nav>
-
-  <main>
-    <!-- ===================== QUALIFICATION PIPELINE TAB ===================== -->
-    <section id="tab-qualification" class="tab-content active">
-
-      <!-- 2P QUALIFICATION -->
-      <div class="card milestone-card" data-milestone="2p">
-        <div class="card-header" data-toggle="2p">
-          <div class="card-header-left">
-            <span class="status-dot" id="dot-2p"></span>
-            <h2>Second Pilot (2P) Qualification</h2>
-          </div>
-          <div class="card-header-right">
-            <div class="progress-bar-mini"><div class="progress-fill" id="prog-2p"></div></div>
-            <span class="progress-text" id="prog-text-2p">0%</span>
-            <span class="chevron">&#9660;</span>
-          </div>
-        </div>
-        <div class="card-body" id="body-2p">
-          <div class="pqs-section">
-            <h3>Ground School</h3>
-            <div class="checklist" data-group="2p-ground">
-              <label class="check-item"><input type="checkbox" data-key="2p-ground-aero"> Aerodynamics / Flight Principles</label>
-              <label class="check-item"><input type="checkbox" data-key="2p-ground-sys"> Aircraft Systems (Engines, Hydraulics, Electrical, Fuel)</label>
-              <label class="check-item"><input type="checkbox" data-key="2p-ground-avionics"> Avionics &amp; Communications Systems</label>
-              <label class="check-item"><input type="checkbox" data-key="2p-ground-ep"> Emergency Procedures (Written)</label>
-              <label class="check-item"><input type="checkbox" data-key="2p-ground-wx"> Aviation Weather</label>
-              <label class="check-item"><input type="checkbox" data-key="2p-ground-nav"> Navigation &amp; Flight Planning</label>
-              <label class="check-item"><input type="checkbox" data-key="2p-ground-pubs"> NATOPS &amp; Publications Review</label>
-              <label class="check-item"><input type="checkbox" data-key="2p-ground-exam"> Ground School Final Exam</label>
-            </div>
-          </div>
-          <div class="pqs-section">
-            <h3>Simulator Phase</h3>
-            <div class="checklist" data-group="2p-sim">
-              <label class="check-item"><input type="checkbox" data-key="2p-sim-fam"> Cockpit Familiarization Sim</label>
-              <label class="check-item"><input type="checkbox" data-key="2p-sim-norm"> Normal Procedures Sim</label>
-              <label class="check-item"><input type="checkbox" data-key="2p-sim-inst"> Instrument Procedures Sim</label>
-              <label class="check-item"><input type="checkbox" data-key="2p-sim-ep1"> Emergency Procedures Sim 1</label>
-              <label class="check-item"><input type="checkbox" data-key="2p-sim-ep2"> Emergency Procedures Sim 2</label>
-              <label class="check-item"><input type="checkbox" data-key="2p-sim-crm"> CRM / Crew Coordination Sim</label>
-              <label class="check-item"><input type="checkbox" data-key="2p-sim-tac"> Mission / Tactical Sim</label>
-              <label class="check-item"><input type="checkbox" data-key="2p-sim-check"> Simulator Check Ride</label>
-            </div>
-          </div>
-          <div class="pqs-section">
-            <h3>Flight Phase</h3>
-            <div class="checklist" data-group="2p-flight">
-              <label class="check-item"><input type="checkbox" data-key="2p-flt-fam"> Familiarization Flights</label>
-              <label class="check-item"><input type="checkbox" data-key="2p-flt-inst"> Instrument Flight Training</label>
-              <label class="check-item"><input type="checkbox" data-key="2p-flt-form"> Formation Flight (if applicable)</label>
-              <label class="check-item"><input type="checkbox" data-key="2p-flt-nav"> Cross-Country / Navigation Flights</label>
-              <label class="check-item"><input type="checkbox" data-key="2p-flt-night"> Night Operations</label>
-              <label class="check-item"><input type="checkbox" data-key="2p-flt-tac"> Mission / Tactical Flights</label>
-              <label class="check-item"><input type="checkbox" data-key="2p-flt-check"> 2P Check Ride (Flight)</label>
-            </div>
-          </div>
-          <div class="pqs-section">
-            <h3>PQS Sign-offs &amp; Board</h3>
-            <div class="checklist" data-group="2p-pqs">
-              <label class="check-item"><input type="checkbox" data-key="2p-pqs-sys"> Systems PQS Complete</label>
-              <label class="check-item"><input type="checkbox" data-key="2p-pqs-ep"> Emergency Procedures PQS Complete</label>
-              <label class="check-item"><input type="checkbox" data-key="2p-pqs-norm"> Normal Procedures PQS Complete</label>
-              <label class="check-item"><input type="checkbox" data-key="2p-pqs-tac"> Tactical / Mission PQS Complete</label>
-              <label class="check-item"><input type="checkbox" data-key="2p-pqs-open"> Open-Book Board</label>
-              <label class="check-item"><input type="checkbox" data-key="2p-pqs-closed"> Closed-Book Board</label>
-              <label class="check-item"><input type="checkbox" data-key="2p-pqs-board"> Qualification Board</label>
-              <label class="check-item"><input type="checkbox" data-key="2p-pqs-desig"> 2P Designation Letter</label>
-            </div>
-          </div>
-          <div class="milestone-notes">
-            <label>Notes</label>
-            <textarea data-notes="2p" placeholder="Add notes, dates, instructor names..."></textarea>
-          </div>
+    <div class="header-right">
+      <div class="overall-readiness">
+        <span class="readiness-label">Overall Readiness</span>
+        <div class="readiness-ring">
+          <svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+            <path class="ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+            <path id="overall-ring" class="ring-fg" stroke-dasharray="0, 100"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+            <text x="18" y="18" id="overall-pct" class="ring-text">0%</text>
+          </svg>
         </div>
       </div>
-
-      <!-- AC QUALIFICATION -->
-      <div class="card milestone-card" data-milestone="ac">
-        <div class="card-header" data-toggle="ac">
-          <div class="card-header-left">
-            <span class="status-dot" id="dot-ac"></span>
-            <h2>Aircraft Commander (AC)</h2>
-          </div>
-          <div class="card-header-right">
-            <div class="progress-bar-mini"><div class="progress-fill" id="prog-ac"></div></div>
-            <span class="progress-text" id="prog-text-ac">0%</span>
-            <span class="chevron">&#9660;</span>
-          </div>
-        </div>
-        <div class="card-body collapsed" id="body-ac">
-          <div class="pqs-section">
-            <h3>Prerequisites</h3>
-            <div class="checklist" data-group="ac-prereq">
-              <label class="check-item"><input type="checkbox" data-key="ac-prereq-2p"> 2P Qualification Complete</label>
-              <label class="check-item"><input type="checkbox" data-key="ac-prereq-hrs"> Flight Hours Requirement Met</label>
-              <label class="check-item"><input type="checkbox" data-key="ac-prereq-rec"> CO/Department Head Recommendation</label>
-            </div>
-          </div>
-          <div class="pqs-section">
-            <h3>AC PQS &amp; Training</h3>
-            <div class="checklist" data-group="ac-pqs">
-              <label class="check-item"><input type="checkbox" data-key="ac-pqs-decision"> Decision Making / CRM Advanced</label>
-              <label class="check-item"><input type="checkbox" data-key="ac-pqs-wx"> Advanced Weather Decision Making</label>
-              <label class="check-item"><input type="checkbox" data-key="ac-pqs-crew"> Crew Management &amp; Leadership</label>
-              <label class="check-item"><input type="checkbox" data-key="ac-pqs-mission"> Mission Planning &amp; Execution</label>
-              <label class="check-item"><input type="checkbox" data-key="ac-pqs-tac"> Advanced Tactical Employment</label>
-              <label class="check-item"><input type="checkbox" data-key="ac-pqs-ep"> Emergency Procedures (AC Level)</label>
-              <label class="check-item"><input type="checkbox" data-key="ac-pqs-sys"> Systems PQS (AC Level)</label>
-            </div>
-          </div>
-          <div class="pqs-section">
-            <h3>Evaluation</h3>
-            <div class="checklist" data-group="ac-eval">
-              <label class="check-item"><input type="checkbox" data-key="ac-eval-sim"> AC Simulator Evaluation</label>
-              <label class="check-item"><input type="checkbox" data-key="ac-eval-open"> Open-Book Board</label>
-              <label class="check-item"><input type="checkbox" data-key="ac-eval-closed"> Closed-Book Board</label>
-              <label class="check-item"><input type="checkbox" data-key="ac-eval-flight"> AC Check Ride (Flight)</label>
-              <label class="check-item"><input type="checkbox" data-key="ac-eval-board"> AC Qualification Board</label>
-              <label class="check-item"><input type="checkbox" data-key="ac-eval-desig"> AC Designation Letter</label>
-            </div>
-          </div>
-          <div class="milestone-notes">
-            <label>Notes</label>
-            <textarea data-notes="ac" placeholder="Add notes, dates, instructor names..."></textarea>
-          </div>
-        </div>
-      </div>
-
-      <!-- IP QUALIFICATION -->
-      <div class="card milestone-card" data-milestone="ip">
-        <div class="card-header" data-toggle="ip">
-          <div class="card-header-left">
-            <span class="status-dot" id="dot-ip"></span>
-            <h2>Instructor Pilot (IP)</h2>
-          </div>
-          <div class="card-header-right">
-            <div class="progress-bar-mini"><div class="progress-fill" id="prog-ip"></div></div>
-            <span class="progress-text" id="prog-text-ip">0%</span>
-            <span class="chevron">&#9660;</span>
-          </div>
-        </div>
-        <div class="card-body collapsed" id="body-ip">
-          <div class="pqs-section">
-            <h3>Prerequisites</h3>
-            <div class="checklist" data-group="ip-prereq">
-              <label class="check-item"><input type="checkbox" data-key="ip-prereq-ac"> AC Qualification Complete</label>
-              <label class="check-item"><input type="checkbox" data-key="ip-prereq-hrs"> Flight Hours Requirement Met</label>
-              <label class="check-item"><input type="checkbox" data-key="ip-prereq-rec"> CO/Department Head Recommendation</label>
-            </div>
-          </div>
-          <div class="pqs-section">
-            <h3>IP PQS &amp; Training</h3>
-            <div class="checklist" data-group="ip-pqs">
-              <label class="check-item"><input type="checkbox" data-key="ip-pqs-technique"> Instructional Techniques</label>
-              <label class="check-item"><input type="checkbox" data-key="ip-pqs-debrief"> Debriefing Skills</label>
-              <label class="check-item"><input type="checkbox" data-key="ip-pqs-syllabus"> Syllabus Management</label>
-              <label class="check-item"><input type="checkbox" data-key="ip-pqs-eval"> Student Evaluation Methods</label>
-              <label class="check-item"><input type="checkbox" data-key="ip-pqs-safety"> Safety / ORM Advanced</label>
-              <label class="check-item"><input type="checkbox" data-key="ip-pqs-sim"> Instructor Sim Events</label>
-              <label class="check-item"><input type="checkbox" data-key="ip-pqs-flight"> Instructor Flight Events</label>
-            </div>
-          </div>
-          <div class="pqs-section">
-            <h3>Evaluation</h3>
-            <div class="checklist" data-group="ip-eval">
-              <label class="check-item"><input type="checkbox" data-key="ip-eval-demo"> Instructional Demo Ride</label>
-              <label class="check-item"><input type="checkbox" data-key="ip-eval-open"> Open-Book Board</label>
-              <label class="check-item"><input type="checkbox" data-key="ip-eval-closed"> Closed-Book Board</label>
-              <label class="check-item"><input type="checkbox" data-key="ip-eval-check"> IP Check Ride</label>
-              <label class="check-item"><input type="checkbox" data-key="ip-eval-board"> IP Qualification Board</label>
-              <label class="check-item"><input type="checkbox" data-key="ip-eval-desig"> IP Designation Letter</label>
-            </div>
-          </div>
-          <div class="milestone-notes">
-            <label>Notes</label>
-            <textarea data-notes="ip" placeholder="Add notes, dates, instructor names..."></textarea>
-          </div>
-        </div>
-      </div>
-
-    </section>
-
-    <!-- ===================== OFFICER REQUIREMENTS TAB ===================== -->
-    <section id="tab-officer" class="tab-content">
-
-      <!-- PRT -->
-      <div class="card">
-        <div class="card-header" data-toggle="prt">
-          <div class="card-header-left">
-            <span class="status-dot" id="dot-prt"></span>
-            <h2>Physical Readiness Test (PRT)</h2>
-          </div>
-          <div class="card-header-right">
-            <span class="chevron">&#9660;</span>
-          </div>
-        </div>
-        <div class="card-body" id="body-prt">
-          <div class="cycle-section">
-            <h3>Current Cycle</h3>
-            <div class="cycle-row">
-              <div class="cycle-field">
-                <label>Cycle</label>
-                <select id="prt-cycle">
-                  <option value="spring">Spring (Cycle 1)</option>
-                  <option value="fall">Fall (Cycle 2)</option>
-                </select>
-              </div>
-              <div class="cycle-field">
-                <label>Year</label>
-                <input type="number" id="prt-year" value="2026" min="2020" max="2035">
-              </div>
-            </div>
-            <div class="checklist">
-              <label class="check-item"><input type="checkbox" data-key="prt-bca"> BCA (Body Composition Assessment)</label>
-              <label class="check-item"><input type="checkbox" data-key="prt-pushups"> Push-ups / Plank</label>
-              <label class="check-item"><input type="checkbox" data-key="prt-cardio"> Cardio (1.5mi Run / Row / Swim / Bike)</label>
-              <label class="check-item"><input type="checkbox" data-key="prt-result"> Official PRT Results Entered in PRIMS</label>
-            </div>
-          </div>
-          <div class="milestone-notes">
-            <label>PRT Notes (scores, waivers, etc.)</label>
-            <textarea data-notes="prt" placeholder="e.g., Outstanding score, run time 9:30..."></textarea>
-          </div>
-        </div>
-      </div>
-
-      <!-- GMT / Annual Training -->
-      <div class="card">
-        <div class="card-header" data-toggle="gmt">
-          <div class="card-header-left">
-            <span class="status-dot" id="dot-gmt"></span>
-            <h2>General Military Training (GMT) &mdash; Annual</h2>
-          </div>
-          <div class="card-header-right">
-            <div class="progress-bar-mini"><div class="progress-fill" id="prog-gmt"></div></div>
-            <span class="progress-text" id="prog-text-gmt">0%</span>
-            <span class="chevron">&#9660;</span>
-          </div>
-        </div>
-        <div class="card-body collapsed" id="body-gmt">
-          <div class="checklist" data-group="gmt">
-            <label class="check-item"><input type="checkbox" data-key="gmt-sapr"> Sexual Assault Prevention &amp; Response (SAPR)</label>
-            <label class="check-item"><input type="checkbox" data-key="gmt-cyber"> Cyber Awareness Challenge</label>
-            <label class="check-item"><input type="checkbox" data-key="gmt-opsec"> OPSEC Awareness</label>
-            <label class="check-item"><input type="checkbox" data-key="gmt-ctip"> Combating Trafficking in Persons (CTIP)</label>
-            <label class="check-item"><input type="checkbox" data-key="gmt-suicide"> Suicide Prevention</label>
-            <label class="check-item"><input type="checkbox" data-key="gmt-eeo"> Equal Employment Opportunity (EEO)</label>
-            <label class="check-item"><input type="checkbox" data-key="gmt-records"> Records Management</label>
-            <label class="check-item"><input type="checkbox" data-key="gmt-dod-ethics"> DoD Ethics / Standards of Conduct</label>
-            <label class="check-item"><input type="checkbox" data-key="gmt-privacy"> Personally Identifiable Information (PII)</label>
-            <label class="check-item"><input type="checkbox" data-key="gmt-fire"> Fire Safety / Extinguisher Training</label>
-            <label class="check-item"><input type="checkbox" data-key="gmt-antiterror"> Antiterrorism (AT) Level 1</label>
-          </div>
-          <div class="milestone-notes">
-            <label>GMT Notes</label>
-            <textarea data-notes="gmt" placeholder="Completion dates, certificate numbers..."></textarea>
-          </div>
-        </div>
-      </div>
-
-      <!-- Medical / Dental -->
-      <div class="card">
-        <div class="card-header" data-toggle="medical">
-          <div class="card-header-left">
-            <span class="status-dot" id="dot-medical"></span>
-            <h2>Medical &amp; Dental Readiness</h2>
-          </div>
-          <div class="card-header-right">
-            <span class="chevron">&#9660;</span>
-          </div>
-        </div>
-        <div class="card-body collapsed" id="body-medical">
-          <div class="checklist" data-group="medical">
-            <label class="check-item"><input type="checkbox" data-key="med-pha"> Periodic Health Assessment (PHA)</label>
-            <label class="check-item"><input type="checkbox" data-key="med-dental"> Dental Exam (Class 1 or 2)</label>
-            <label class="check-item"><input type="checkbox" data-key="med-flight-phys"> Flight Physical (Annual)</label>
-            <label class="check-item"><input type="checkbox" data-key="med-immunizations"> Immunizations Current</label>
-            <label class="check-item"><input type="checkbox" data-key="med-hearing"> Hearing Conservation</label>
-            <label class="check-item"><input type="checkbox" data-key="med-vision"> Vision Screening</label>
-            <label class="check-item"><input type="checkbox" data-key="med-hiv"> HIV Test</label>
-          </div>
-          <div class="milestone-notes">
-            <label>Medical Notes</label>
-            <textarea data-notes="medical" placeholder="Due dates, waivers, follow-ups..."></textarea>
-          </div>
-        </div>
-      </div>
-
-      <!-- Admin / Career -->
-      <div class="card">
-        <div class="card-header" data-toggle="admin">
-          <div class="card-header-left">
-            <span class="status-dot" id="dot-admin"></span>
-            <h2>Administrative &amp; Career</h2>
-          </div>
-          <div class="card-header-right">
-            <span class="chevron">&#9660;</span>
-          </div>
-        </div>
-        <div class="card-body collapsed" id="body-admin">
-          <div class="checklist" data-group="admin">
-            <label class="check-item"><input type="checkbox" data-key="admin-fitrep"> FITREP / Eval Current</label>
-            <label class="check-item"><input type="checkbox" data-key="admin-security"> Security Clearance Current</label>
-            <label class="check-item"><input type="checkbox" data-key="admin-ompf"> OMPF / Service Record Review</label>
-            <label class="check-item"><input type="checkbox" data-key="admin-sgli"> SGLI / Page 2 Current</label>
-            <label class="check-item"><input type="checkbox" data-key="admin-leave"> Leave Balance Reviewed</label>
-          </div>
-          <div class="milestone-notes">
-            <label>Admin Notes</label>
-            <textarea data-notes="admin" placeholder="FITREP due date, clearance expiry..."></textarea>
-          </div>
-        </div>
-      </div>
-
-    </section>
-
-    <!-- ===================== FLIGHT CURRENCY TAB ===================== -->
-    <section id="tab-currency" class="tab-content">
-
-      <div class="card">
-        <div class="card-header" data-toggle="natops">
-          <div class="card-header-left">
-            <span class="status-dot" id="dot-natops"></span>
-            <h2>NATOPS &amp; Instrument Checks</h2>
-          </div>
-          <div class="card-header-right">
-            <span class="chevron">&#9660;</span>
-          </div>
-        </div>
-        <div class="card-body" id="body-natops">
-          <div class="checklist" data-group="natops">
-            <label class="check-item"><input type="checkbox" data-key="natops-open"> NATOPS Open-Book Exam</label>
-            <label class="check-item"><input type="checkbox" data-key="natops-closed"> NATOPS Closed-Book Exam</label>
-            <label class="check-item"><input type="checkbox" data-key="natops-check"> NATOPS Check Flight / Sim</label>
-            <label class="check-item"><input type="checkbox" data-key="natops-inst"> Annual Instrument Check</label>
-          </div>
-          <div class="date-tracker">
-            <h3>Date Tracking</h3>
-            <div class="date-row">
-              <label>Last NATOPS Check</label>
-              <input type="date" data-date="natops-last">
-            </div>
-            <div class="date-row">
-              <label>Next NATOPS Due</label>
-              <input type="date" data-date="natops-next">
-            </div>
-            <div class="date-row">
-              <label>Last Instrument Check</label>
-              <input type="date" data-date="inst-last">
-            </div>
-            <div class="date-row">
-              <label>Next Instrument Due</label>
-              <input type="date" data-date="inst-next">
-            </div>
-          </div>
-          <div class="milestone-notes">
-            <label>Notes</label>
-            <textarea data-notes="natops" placeholder="Examiner, scores, areas to review..."></textarea>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header" data-toggle="flights">
-          <div class="card-header-left">
-            <span class="status-dot" id="dot-flights"></span>
-            <h2>Flight Currency &amp; Hours</h2>
-          </div>
-          <div class="card-header-right">
-            <span class="chevron">&#9660;</span>
-          </div>
-        </div>
-        <div class="card-body collapsed" id="body-flights">
-          <div class="checklist" data-group="flights">
-            <label class="check-item"><input type="checkbox" data-key="curr-day"> Day Currency (last 30 days)</label>
-            <label class="check-item"><input type="checkbox" data-key="curr-night"> Night Currency (last 30 days)</label>
-            <label class="check-item"><input type="checkbox" data-key="curr-inst"> Instrument Currency</label>
-            <label class="check-item"><input type="checkbox" data-key="curr-crm"> CRM Training Current</label>
-          </div>
-          <div class="date-tracker">
-            <h3>Flight Hour Log</h3>
-            <div class="date-row">
-              <label>Total Flight Hours</label>
-              <input type="number" data-date="hrs-total" min="0" step="0.1" placeholder="0.0">
-            </div>
-            <div class="date-row">
-              <label>E-6B Hours</label>
-              <input type="number" data-date="hrs-e6b" min="0" step="0.1" placeholder="0.0">
-            </div>
-            <div class="date-row">
-              <label>Last 30 Days</label>
-              <input type="number" data-date="hrs-30" min="0" step="0.1" placeholder="0.0">
-            </div>
-            <div class="date-row">
-              <label>Last 90 Days</label>
-              <input type="number" data-date="hrs-90" min="0" step="0.1" placeholder="0.0">
-            </div>
-          </div>
-          <div class="milestone-notes">
-            <label>Notes</label>
-            <textarea data-notes="flights" placeholder="Currency details, waiver info..."></textarea>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header" data-toggle="survival">
-          <div class="card-header-left">
-            <span class="status-dot" id="dot-survival"></span>
-            <h2>Survival &amp; Safety Training</h2>
-          </div>
-          <div class="card-header-right">
-            <span class="chevron">&#9660;</span>
-          </div>
-        </div>
-        <div class="card-body collapsed" id="body-survival">
-          <div class="checklist" data-group="survival">
-            <label class="check-item"><input type="checkbox" data-key="surv-swim"> Aviation Water Survival (AWS)</label>
-            <label class="check-item"><input type="checkbox" data-key="surv-heed"> HEED (Helicopter Emergency Egress Device) Training</label>
-            <label class="check-item"><input type="checkbox" data-key="surv-physio"> Aviation Physiology / Hypoxia Training</label>
-            <label class="check-item"><input type="checkbox" data-key="surv-egress"> Egress Training</label>
-            <label class="check-item"><input type="checkbox" data-key="surv-sere"> SERE (if applicable)</label>
-            <label class="check-item"><input type="checkbox" data-key="surv-orm"> ORM / Safety Stand-down</label>
-          </div>
-          <div class="date-tracker">
-            <h3>Date Tracking</h3>
-            <div class="date-row">
-              <label>Last AWS</label>
-              <input type="date" data-date="aws-last">
-            </div>
-            <div class="date-row">
-              <label>Next AWS Due</label>
-              <input type="date" data-date="aws-next">
-            </div>
-            <div class="date-row">
-              <label>Last Physiology</label>
-              <input type="date" data-date="physio-last">
-            </div>
-            <div class="date-row">
-              <label>Next Physiology Due</label>
-              <input type="date" data-date="physio-next">
-            </div>
-          </div>
-          <div class="milestone-notes">
-            <label>Notes</label>
-            <textarea data-notes="survival" placeholder="Expiration dates, renewal info..."></textarea>
-          </div>
-        </div>
-      </div>
-
-    </section>
-  </main>
-
-  <!-- Reset confirmation modal -->
-  <div class="modal-overlay" id="modal-reset">
-    <div class="modal">
-      <h3>Reset All Data?</h3>
-      <p>This will clear all checkboxes, notes, dates, and saved progress. This cannot be undone.</p>
-      <div class="modal-actions">
-        <button class="btn btn-secondary" id="btn-reset-cancel">Cancel</button>
-        <button class="btn btn-danger" id="btn-reset-confirm">Reset Everything</button>
-      </div>
+      <button class="btn-icon" id="btn-reset" title="Reset all data">&#x21bb;</button>
     </div>
   </div>
+</header>
 
-  <script src="app.js"></script>
+<nav class="tab-bar">
+  <button class="tab active" data-tab="qualification">Qualification Pipeline</button>
+  <button class="tab" data-tab="officer">Officer Requirements</button>
+  <button class="tab" data-tab="currency">Flight Currency</button>
+</nav>
+
+<main>
+
+  <!-- ===================== QUALIFICATION PIPELINE ===================== -->
+  <section id="tab-qualification" class="tab-content active">
+
+    <!-- 2P -->
+    <div class="card milestone-card" data-milestone="2p">
+      <div class="card-header" data-toggle="2p">
+        <div class="card-header-left">
+          <span class="status-dot" id="dot-2p"></span>
+          <h2>Second Pilot (2P) Qualification</h2>
+        </div>
+        <div class="card-header-right">
+          <div class="progress-bar-mini"><div class="progress-fill" id="prog-2p"></div></div>
+          <span class="progress-text" id="prog-text-2p">0%</span>
+          <span class="chevron open">&#9660;</span>
+        </div>
+      </div>
+      <div class="card-body" id="body-2p">
+        <div class="pqs-section">
+          <h3>Ground School</h3>
+          <div class="checklist" data-group="2p-ground">
+            <label class="check-item"><input type="checkbox" data-key="2p-ground-aero"> Aerodynamics / Flight Principles</label>
+            <label class="check-item"><input type="checkbox" data-key="2p-ground-sys"> Aircraft Systems (Engines, Hydraulics, Electrical, Fuel)</label>
+            <label class="check-item"><input type="checkbox" data-key="2p-ground-avionics"> Avionics &amp; Communications Systems</label>
+            <label class="check-item"><input type="checkbox" data-key="2p-ground-ep"> Emergency Procedures (Written)</label>
+            <label class="check-item"><input type="checkbox" data-key="2p-ground-wx"> Aviation Weather</label>
+            <label class="check-item"><input type="checkbox" data-key="2p-ground-nav"> Navigation &amp; Flight Planning</label>
+            <label class="check-item"><input type="checkbox" data-key="2p-ground-pubs"> NATOPS &amp; Publications Review</label>
+            <label class="check-item"><input type="checkbox" data-key="2p-ground-exam"> Ground School Final Exam</label>
+          </div>
+        </div>
+        <div class="pqs-section">
+          <h3>Simulator Phase</h3>
+          <div class="checklist" data-group="2p-sim">
+            <label class="check-item"><input type="checkbox" data-key="2p-sim-fam"> Cockpit Familiarization Sim</label>
+            <label class="check-item"><input type="checkbox" data-key="2p-sim-norm"> Normal Procedures Sim</label>
+            <label class="check-item"><input type="checkbox" data-key="2p-sim-inst"> Instrument Procedures Sim</label>
+            <label class="check-item"><input type="checkbox" data-key="2p-sim-ep1"> Emergency Procedures Sim 1</label>
+            <label class="check-item"><input type="checkbox" data-key="2p-sim-ep2"> Emergency Procedures Sim 2</label>
+            <label class="check-item"><input type="checkbox" data-key="2p-sim-crm"> CRM / Crew Coordination Sim</label>
+            <label class="check-item"><input type="checkbox" data-key="2p-sim-tac"> Mission / Tactical Sim</label>
+            <label class="check-item"><input type="checkbox" data-key="2p-sim-check"> Simulator Check Ride</label>
+          </div>
+        </div>
+        <div class="pqs-section">
+          <h3>Flight Phase</h3>
+          <div class="checklist" data-group="2p-flight">
+            <label class="check-item"><input type="checkbox" data-key="2p-flt-fam"> Familiarization Flights</label>
+            <label class="check-item"><input type="checkbox" data-key="2p-flt-inst"> Instrument Flight Training</label>
+            <label class="check-item"><input type="checkbox" data-key="2p-flt-nav"> Cross-Country / Navigation Flights</label>
+            <label class="check-item"><input type="checkbox" data-key="2p-flt-night"> Night Operations</label>
+            <label class="check-item"><input type="checkbox" data-key="2p-flt-tac"> Mission / Tactical Flights</label>
+            <label class="check-item"><input type="checkbox" data-key="2p-flt-check"> 2P Check Ride (Flight)</label>
+          </div>
+        </div>
+        <div class="pqs-section">
+          <h3>PQS Sign-offs &amp; Board</h3>
+          <div class="checklist" data-group="2p-pqs">
+            <label class="check-item"><input type="checkbox" data-key="2p-pqs-sys"> Systems PQS Complete</label>
+            <label class="check-item"><input type="checkbox" data-key="2p-pqs-ep"> Emergency Procedures PQS Complete</label>
+            <label class="check-item"><input type="checkbox" data-key="2p-pqs-norm"> Normal Procedures PQS Complete</label>
+            <label class="check-item"><input type="checkbox" data-key="2p-pqs-tac"> Tactical / Mission PQS Complete</label>
+            <label class="check-item"><input type="checkbox" data-key="2p-pqs-open"> Open-Book Board</label>
+            <label class="check-item"><input type="checkbox" data-key="2p-pqs-closed"> Closed-Book Board</label>
+            <label class="check-item"><input type="checkbox" data-key="2p-pqs-board"> Qualification Board</label>
+            <label class="check-item"><input type="checkbox" data-key="2p-pqs-desig"> 2P Designation Letter</label>
+          </div>
+        </div>
+        <div class="milestone-notes">
+          <label>Notes</label>
+          <textarea data-notes="2p" placeholder="Add notes, dates, instructor names..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- AC -->
+    <div class="card milestone-card" data-milestone="ac">
+      <div class="card-header" data-toggle="ac">
+        <div class="card-header-left">
+          <span class="status-dot" id="dot-ac"></span>
+          <h2>Aircraft Commander (AC)</h2>
+        </div>
+        <div class="card-header-right">
+          <div class="progress-bar-mini"><div class="progress-fill" id="prog-ac"></div></div>
+          <span class="progress-text" id="prog-text-ac">0%</span>
+          <span class="chevron">&#9660;</span>
+        </div>
+      </div>
+      <div class="card-body collapsed" id="body-ac">
+        <div class="pqs-section">
+          <h3>Prerequisites</h3>
+          <div class="checklist" data-group="ac-prereq">
+            <label class="check-item"><input type="checkbox" data-key="ac-prereq-2p"> 2P Qualification Complete</label>
+            <label class="check-item"><input type="checkbox" data-key="ac-prereq-hrs"> Flight Hours Requirement Met</label>
+            <label class="check-item"><input type="checkbox" data-key="ac-prereq-rec"> CO / Department Head Recommendation</label>
+          </div>
+        </div>
+        <div class="pqs-section">
+          <h3>AC PQS &amp; Training</h3>
+          <div class="checklist" data-group="ac-pqs">
+            <label class="check-item"><input type="checkbox" data-key="ac-pqs-decision"> Decision Making / CRM Advanced</label>
+            <label class="check-item"><input type="checkbox" data-key="ac-pqs-wx"> Advanced Weather Decision Making</label>
+            <label class="check-item"><input type="checkbox" data-key="ac-pqs-crew"> Crew Management &amp; Leadership</label>
+            <label class="check-item"><input type="checkbox" data-key="ac-pqs-mission"> Mission Planning &amp; Execution</label>
+            <label class="check-item"><input type="checkbox" data-key="ac-pqs-tac"> Advanced Tactical Employment</label>
+            <label class="check-item"><input type="checkbox" data-key="ac-pqs-ep"> Emergency Procedures (AC Level)</label>
+            <label class="check-item"><input type="checkbox" data-key="ac-pqs-sys"> Systems PQS (AC Level)</label>
+          </div>
+        </div>
+        <div class="pqs-section">
+          <h3>Evaluation</h3>
+          <div class="checklist" data-group="ac-eval">
+            <label class="check-item"><input type="checkbox" data-key="ac-eval-sim"> AC Simulator Evaluation</label>
+            <label class="check-item"><input type="checkbox" data-key="ac-eval-open"> Open-Book Board</label>
+            <label class="check-item"><input type="checkbox" data-key="ac-eval-closed"> Closed-Book Board</label>
+            <label class="check-item"><input type="checkbox" data-key="ac-eval-flight"> AC Check Ride (Flight)</label>
+            <label class="check-item"><input type="checkbox" data-key="ac-eval-board"> AC Qualification Board</label>
+            <label class="check-item"><input type="checkbox" data-key="ac-eval-desig"> AC Designation Letter</label>
+          </div>
+        </div>
+        <div class="milestone-notes">
+          <label>Notes</label>
+          <textarea data-notes="ac" placeholder="Add notes, dates, instructor names..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- IP -->
+    <div class="card milestone-card" data-milestone="ip">
+      <div class="card-header" data-toggle="ip">
+        <div class="card-header-left">
+          <span class="status-dot" id="dot-ip"></span>
+          <h2>Instructor Pilot (IP)</h2>
+        </div>
+        <div class="card-header-right">
+          <div class="progress-bar-mini"><div class="progress-fill" id="prog-ip"></div></div>
+          <span class="progress-text" id="prog-text-ip">0%</span>
+          <span class="chevron">&#9660;</span>
+        </div>
+      </div>
+      <div class="card-body collapsed" id="body-ip">
+        <div class="pqs-section">
+          <h3>Prerequisites</h3>
+          <div class="checklist" data-group="ip-prereq">
+            <label class="check-item"><input type="checkbox" data-key="ip-prereq-ac"> AC Qualification Complete</label>
+            <label class="check-item"><input type="checkbox" data-key="ip-prereq-hrs"> Flight Hours Requirement Met</label>
+            <label class="check-item"><input type="checkbox" data-key="ip-prereq-rec"> CO / Department Head Recommendation</label>
+          </div>
+        </div>
+        <div class="pqs-section">
+          <h3>IP PQS &amp; Training</h3>
+          <div class="checklist" data-group="ip-pqs">
+            <label class="check-item"><input type="checkbox" data-key="ip-pqs-technique"> Instructional Techniques</label>
+            <label class="check-item"><input type="checkbox" data-key="ip-pqs-debrief"> Debriefing Skills</label>
+            <label class="check-item"><input type="checkbox" data-key="ip-pqs-syllabus"> Syllabus Management</label>
+            <label class="check-item"><input type="checkbox" data-key="ip-pqs-eval"> Student Evaluation Methods</label>
+            <label class="check-item"><input type="checkbox" data-key="ip-pqs-safety"> Safety / ORM Advanced</label>
+            <label class="check-item"><input type="checkbox" data-key="ip-pqs-sim"> Instructor Sim Events</label>
+            <label class="check-item"><input type="checkbox" data-key="ip-pqs-flight"> Instructor Flight Events</label>
+          </div>
+        </div>
+        <div class="pqs-section">
+          <h3>Evaluation</h3>
+          <div class="checklist" data-group="ip-eval">
+            <label class="check-item"><input type="checkbox" data-key="ip-eval-demo"> Instructional Demo Ride</label>
+            <label class="check-item"><input type="checkbox" data-key="ip-eval-open"> Open-Book Board</label>
+            <label class="check-item"><input type="checkbox" data-key="ip-eval-closed"> Closed-Book Board</label>
+            <label class="check-item"><input type="checkbox" data-key="ip-eval-check"> IP Check Ride</label>
+            <label class="check-item"><input type="checkbox" data-key="ip-eval-board"> IP Qualification Board</label>
+            <label class="check-item"><input type="checkbox" data-key="ip-eval-desig"> IP Designation Letter</label>
+          </div>
+        </div>
+        <div class="milestone-notes">
+          <label>Notes</label>
+          <textarea data-notes="ip" placeholder="Add notes, dates, instructor names..."></textarea>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ===================== OFFICER REQUIREMENTS ===================== -->
+  <section id="tab-officer" class="tab-content">
+
+    <!-- PRT -->
+    <div class="card">
+      <div class="card-header" data-toggle="prt">
+        <div class="card-header-left">
+          <span class="status-dot" id="dot-prt"></span>
+          <h2>Physical Readiness Test (PRT)</h2>
+        </div>
+        <div class="card-header-right">
+          <div class="progress-bar-mini"><div class="progress-fill" id="prog-prt"></div></div>
+          <span class="progress-text" id="prog-text-prt">0%</span>
+          <span class="chevron open">&#9660;</span>
+        </div>
+      </div>
+      <div class="card-body" id="body-prt">
+        <div class="cycle-section">
+          <h3>Current Cycle</h3>
+          <div class="cycle-row">
+            <div class="cycle-field">
+              <label>Cycle</label>
+              <select id="prt-cycle">
+                <option value="spring">Spring (Cycle 1)</option>
+                <option value="fall">Fall (Cycle 2)</option>
+              </select>
+            </div>
+            <div class="cycle-field">
+              <label>Year</label>
+              <input type="number" id="prt-year" value="2026" min="2020" max="2035">
+            </div>
+          </div>
+          <div class="checklist" data-group="prt">
+            <label class="check-item"><input type="checkbox" data-key="prt-bca"> BCA (Body Composition Assessment)</label>
+            <label class="check-item"><input type="checkbox" data-key="prt-pushups"> Push-ups / Plank</label>
+            <label class="check-item"><input type="checkbox" data-key="prt-cardio"> Cardio (1.5mi Run / Row / Swim / Bike)</label>
+            <label class="check-item"><input type="checkbox" data-key="prt-result"> Official PRT Results Entered in PRIMS</label>
+          </div>
+        </div>
+        <div class="milestone-notes">
+          <label>PRT Notes (scores, waivers, etc.)</label>
+          <textarea data-notes="prt" placeholder="e.g., Outstanding score, run time 9:30..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- GMT -->
+    <div class="card">
+      <div class="card-header" data-toggle="gmt">
+        <div class="card-header-left">
+          <span class="status-dot" id="dot-gmt"></span>
+          <h2>General Military Training (GMT) &mdash; Annual</h2>
+        </div>
+        <div class="card-header-right">
+          <div class="progress-bar-mini"><div class="progress-fill" id="prog-gmt"></div></div>
+          <span class="progress-text" id="prog-text-gmt">0%</span>
+          <span class="chevron">&#9660;</span>
+        </div>
+      </div>
+      <div class="card-body collapsed" id="body-gmt">
+        <div class="checklist" data-group="gmt">
+          <label class="check-item"><input type="checkbox" data-key="gmt-sapr"> Sexual Assault Prevention &amp; Response (SAPR)</label>
+          <label class="check-item"><input type="checkbox" data-key="gmt-cyber"> Cyber Awareness Challenge</label>
+          <label class="check-item"><input type="checkbox" data-key="gmt-opsec"> OPSEC Awareness</label>
+          <label class="check-item"><input type="checkbox" data-key="gmt-ctip"> Combating Trafficking in Persons (CTIP)</label>
+          <label class="check-item"><input type="checkbox" data-key="gmt-suicide"> Suicide Prevention</label>
+          <label class="check-item"><input type="checkbox" data-key="gmt-eeo"> Equal Employment Opportunity (EEO)</label>
+          <label class="check-item"><input type="checkbox" data-key="gmt-records"> Records Management</label>
+          <label class="check-item"><input type="checkbox" data-key="gmt-ethics"> DoD Ethics / Standards of Conduct</label>
+          <label class="check-item"><input type="checkbox" data-key="gmt-privacy"> Personally Identifiable Information (PII)</label>
+          <label class="check-item"><input type="checkbox" data-key="gmt-fire"> Fire Safety / Extinguisher Training</label>
+          <label class="check-item"><input type="checkbox" data-key="gmt-antiterror"> Antiterrorism (AT) Level 1</label>
+        </div>
+        <div class="milestone-notes">
+          <label>GMT Notes</label>
+          <textarea data-notes="gmt" placeholder="Completion dates, certificate numbers..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Medical / Dental -->
+    <div class="card">
+      <div class="card-header" data-toggle="medical">
+        <div class="card-header-left">
+          <span class="status-dot" id="dot-medical"></span>
+          <h2>Medical &amp; Dental Readiness</h2>
+        </div>
+        <div class="card-header-right">
+          <div class="progress-bar-mini"><div class="progress-fill" id="prog-medical"></div></div>
+          <span class="progress-text" id="prog-text-medical">0%</span>
+          <span class="chevron">&#9660;</span>
+        </div>
+      </div>
+      <div class="card-body collapsed" id="body-medical">
+        <div class="checklist" data-group="medical">
+          <label class="check-item"><input type="checkbox" data-key="med-pha"> Periodic Health Assessment (PHA)</label>
+          <label class="check-item"><input type="checkbox" data-key="med-dental"> Dental Exam (Class 1 or 2)</label>
+          <label class="check-item"><input type="checkbox" data-key="med-flight-phys"> Flight Physical (Annual)</label>
+          <label class="check-item"><input type="checkbox" data-key="med-immunizations"> Immunizations Current</label>
+          <label class="check-item"><input type="checkbox" data-key="med-hearing"> Hearing Conservation</label>
+          <label class="check-item"><input type="checkbox" data-key="med-vision"> Vision Screening</label>
+          <label class="check-item"><input type="checkbox" data-key="med-hiv"> HIV Test</label>
+        </div>
+        <div class="milestone-notes">
+          <label>Medical Notes</label>
+          <textarea data-notes="medical" placeholder="Due dates, waivers, follow-ups..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin / Career -->
+    <div class="card">
+      <div class="card-header" data-toggle="admin">
+        <div class="card-header-left">
+          <span class="status-dot" id="dot-admin"></span>
+          <h2>Administrative &amp; Career</h2>
+        </div>
+        <div class="card-header-right">
+          <div class="progress-bar-mini"><div class="progress-fill" id="prog-admin"></div></div>
+          <span class="progress-text" id="prog-text-admin">0%</span>
+          <span class="chevron">&#9660;</span>
+        </div>
+      </div>
+      <div class="card-body collapsed" id="body-admin">
+        <div class="checklist" data-group="admin">
+          <label class="check-item"><input type="checkbox" data-key="admin-fitrep"> FITREP / Eval Current</label>
+          <label class="check-item"><input type="checkbox" data-key="admin-security"> Security Clearance Current</label>
+          <label class="check-item"><input type="checkbox" data-key="admin-ompf"> OMPF / Service Record Review</label>
+          <label class="check-item"><input type="checkbox" data-key="admin-sgli"> SGLI / Page 2 Current</label>
+          <label class="check-item"><input type="checkbox" data-key="admin-leave"> Leave Balance Reviewed</label>
+        </div>
+        <div class="milestone-notes">
+          <label>Admin Notes</label>
+          <textarea data-notes="admin" placeholder="FITREP due date, clearance expiry..."></textarea>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ===================== FLIGHT CURRENCY ===================== -->
+  <section id="tab-currency" class="tab-content">
+
+    <!-- NATOPS -->
+    <div class="card">
+      <div class="card-header" data-toggle="natops">
+        <div class="card-header-left">
+          <span class="status-dot" id="dot-natops"></span>
+          <h2>NATOPS &amp; Instrument Checks</h2>
+        </div>
+        <div class="card-header-right">
+          <div class="progress-bar-mini"><div class="progress-fill" id="prog-natops"></div></div>
+          <span class="progress-text" id="prog-text-natops">0%</span>
+          <span class="chevron open">&#9660;</span>
+        </div>
+      </div>
+      <div class="card-body" id="body-natops">
+        <div class="checklist" data-group="natops">
+          <label class="check-item"><input type="checkbox" data-key="natops-open"> NATOPS Open-Book Exam</label>
+          <label class="check-item"><input type="checkbox" data-key="natops-closed"> NATOPS Closed-Book Exam</label>
+          <label class="check-item"><input type="checkbox" data-key="natops-check"> NATOPS Check Flight / Sim</label>
+          <label class="check-item"><input type="checkbox" data-key="natops-inst"> Annual Instrument Check</label>
+        </div>
+        <div class="date-tracker">
+          <h3>Date Tracking</h3>
+          <div class="date-row"><label>Last NATOPS Check</label><input type="date" data-date="natops-last"></div>
+          <div class="date-row"><label>Next NATOPS Due</label><input type="date" data-date="natops-next"></div>
+          <div class="date-row"><label>Last Instrument Check</label><input type="date" data-date="inst-last"></div>
+          <div class="date-row"><label>Next Instrument Due</label><input type="date" data-date="inst-next"></div>
+        </div>
+        <div class="milestone-notes">
+          <label>Notes</label>
+          <textarea data-notes="natops" placeholder="Examiner, scores, areas to review..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flight Currency -->
+    <div class="card">
+      <div class="card-header" data-toggle="flights">
+        <div class="card-header-left">
+          <span class="status-dot" id="dot-flights"></span>
+          <h2>Flight Currency &amp; Hours</h2>
+        </div>
+        <div class="card-header-right">
+          <div class="progress-bar-mini"><div class="progress-fill" id="prog-flights"></div></div>
+          <span class="progress-text" id="prog-text-flights">0%</span>
+          <span class="chevron">&#9660;</span>
+        </div>
+      </div>
+      <div class="card-body collapsed" id="body-flights">
+        <div class="checklist" data-group="flights">
+          <label class="check-item"><input type="checkbox" data-key="curr-day"> Day Currency (last 30 days)</label>
+          <label class="check-item"><input type="checkbox" data-key="curr-night"> Night Currency (last 30 days)</label>
+          <label class="check-item"><input type="checkbox" data-key="curr-inst"> Instrument Currency</label>
+          <label class="check-item"><input type="checkbox" data-key="curr-crm"> CRM Training Current</label>
+        </div>
+        <div class="date-tracker">
+          <h3>Flight Hour Log</h3>
+          <div class="date-row"><label>Total Flight Hours</label><input type="number" data-date="hrs-total" min="0" step="0.1" placeholder="0.0"></div>
+          <div class="date-row"><label>E-6B Hours</label><input type="number" data-date="hrs-e6b" min="0" step="0.1" placeholder="0.0"></div>
+          <div class="date-row"><label>Last 30 Days</label><input type="number" data-date="hrs-30" min="0" step="0.1" placeholder="0.0"></div>
+          <div class="date-row"><label>Last 90 Days</label><input type="number" data-date="hrs-90" min="0" step="0.1" placeholder="0.0"></div>
+        </div>
+        <div class="milestone-notes">
+          <label>Notes</label>
+          <textarea data-notes="flights" placeholder="Currency details, waiver info..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Survival & Safety -->
+    <div class="card">
+      <div class="card-header" data-toggle="survival">
+        <div class="card-header-left">
+          <span class="status-dot" id="dot-survival"></span>
+          <h2>Survival &amp; Safety Training</h2>
+        </div>
+        <div class="card-header-right">
+          <div class="progress-bar-mini"><div class="progress-fill" id="prog-survival"></div></div>
+          <span class="progress-text" id="prog-text-survival">0%</span>
+          <span class="chevron">&#9660;</span>
+        </div>
+      </div>
+      <div class="card-body collapsed" id="body-survival">
+        <div class="checklist" data-group="survival">
+          <label class="check-item"><input type="checkbox" data-key="surv-swim"> Aviation Water Survival (AWS)</label>
+          <label class="check-item"><input type="checkbox" data-key="surv-heed"> HEED (Helicopter Emergency Egress Device) Training</label>
+          <label class="check-item"><input type="checkbox" data-key="surv-physio"> Aviation Physiology / Hypoxia Training</label>
+          <label class="check-item"><input type="checkbox" data-key="surv-egress"> Egress Training</label>
+          <label class="check-item"><input type="checkbox" data-key="surv-sere"> SERE (if applicable)</label>
+          <label class="check-item"><input type="checkbox" data-key="surv-orm"> ORM / Safety Stand-down</label>
+        </div>
+        <div class="date-tracker">
+          <h3>Date Tracking</h3>
+          <div class="date-row"><label>Last AWS</label><input type="date" data-date="aws-last"></div>
+          <div class="date-row"><label>Next AWS Due</label><input type="date" data-date="aws-next"></div>
+          <div class="date-row"><label>Last Physiology</label><input type="date" data-date="physio-last"></div>
+          <div class="date-row"><label>Next Physiology Due</label><input type="date" data-date="physio-next"></div>
+        </div>
+        <div class="milestone-notes">
+          <label>Notes</label>
+          <textarea data-notes="survival" placeholder="Expiration dates, renewal info..."></textarea>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+</main>
+
+<!-- Reset confirmation modal -->
+<div class="modal-overlay" id="modal-reset">
+  <div class="modal">
+    <h3>Reset All Data?</h3>
+    <p>This will clear all checkboxes, notes, dates, and saved progress. This cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="btn-reset-cancel">Cancel</button>
+      <button class="btn btn-danger" id="btn-reset-confirm">Reset Everything</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  const STORAGE_KEY = "tacamo-dashboard";
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch { return {}; }
+  }
+
+  function saveState(state) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  let state = loadState();
+
+  // ===== Tab Switching =====
+  const tabs = document.querySelectorAll(".tab");
+  const tabContents = document.querySelectorAll(".tab-content");
+
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      const target = tab.dataset.tab;
+      tabs.forEach(t => t.classList.remove("active"));
+      tabContents.forEach(tc => tc.classList.remove("active"));
+      tab.classList.add("active");
+      document.getElementById(`tab-${target}`).classList.add("active");
+      state._activeTab = target;
+      saveState(state);
+    });
+  });
+
+  if (state._activeTab) {
+    const savedTab = document.querySelector(`.tab[data-tab="${state._activeTab}"]`);
+    if (savedTab) savedTab.click();
+  }
+
+  // ===== Collapsible Cards =====
+  document.querySelectorAll("[data-toggle]").forEach(header => {
+    header.addEventListener("click", () => {
+      const key = header.dataset.toggle;
+      const body = document.getElementById(`body-${key}`);
+      const chevron = header.querySelector(".chevron");
+      if (!body) return;
+      const nowCollapsed = !body.classList.contains("collapsed");
+      body.classList.toggle("collapsed", nowCollapsed);
+      if (chevron) chevron.classList.toggle("open", !nowCollapsed);
+      if (!state._collapsed) state._collapsed = {};
+      state._collapsed[key] = nowCollapsed;
+      saveState(state);
+    });
+  });
+
+  // Restore collapsed states
+  if (state._collapsed) {
+    Object.entries(state._collapsed).forEach(([key, isCollapsed]) => {
+      const body = document.getElementById(`body-${key}`);
+      const header = document.querySelector(`[data-toggle="${key}"]`);
+      const chevron = header ? header.querySelector(".chevron") : null;
+      if (body) {
+        body.classList.toggle("collapsed", isCollapsed);
+        if (chevron) chevron.classList.toggle("open", !isCollapsed);
+      }
+    });
+  }
+
+  // ===== Checkboxes =====
+  const allCheckboxes = document.querySelectorAll("input[type='checkbox'][data-key]");
+
+  allCheckboxes.forEach(cb => {
+    if (state[cb.dataset.key]) {
+      cb.checked = true;
+      cb.closest(".check-item").classList.add("checked");
+    }
+    cb.addEventListener("change", () => {
+      state[cb.dataset.key] = cb.checked;
+      cb.closest(".check-item").classList.toggle("checked", cb.checked);
+      saveState(state);
+      updateAllProgress();
+    });
+  });
+
+  // ===== Textareas =====
+  document.querySelectorAll("textarea[data-notes]").forEach(ta => {
+    const key = `_notes_${ta.dataset.notes}`;
+    if (state[key]) ta.value = state[key];
+    ta.addEventListener("input", () => { state[key] = ta.value; saveState(state); });
+  });
+
+  // ===== Date / Number Inputs =====
+  document.querySelectorAll("[data-date]").forEach(input => {
+    const key = `_date_${input.dataset.date}`;
+    if (state[key]) input.value = state[key];
+    input.addEventListener("change", () => { state[key] = input.value; saveState(state); updateAllProgress(); });
+    input.addEventListener("input",  () => { state[key] = input.value; saveState(state); });
+  });
+
+  // ===== PRT Cycle =====
+  const prtCycle = document.getElementById("prt-cycle");
+  const prtYear  = document.getElementById("prt-year");
+  if (prtCycle && state._prtCycle) prtCycle.value = state._prtCycle;
+  if (prtYear  && state._prtYear)  prtYear.value  = state._prtYear;
+  if (prtCycle) prtCycle.addEventListener("change", () => { state._prtCycle = prtCycle.value; saveState(state); });
+  if (prtYear)  prtYear.addEventListener("change",  () => { state._prtYear  = prtYear.value;  saveState(state); });
+
+  // ===== Progress =====
+  // Map of card id -> checkbox key prefixes that count toward its progress
+  const progressMap = {
+    "2p":      ["2p-ground", "2p-sim", "2p-flight", "2p-pqs"],
+    "ac":      ["ac-prereq", "ac-pqs", "ac-eval"],
+    "ip":      ["ip-prereq", "ip-pqs", "ip-eval"],
+    "prt":     ["prt"],
+    "gmt":     ["gmt"],
+    "medical": ["med"],
+    "admin":   ["admin"],
+    "natops":  ["natops"],
+    "flights": ["curr"],
+    "survival":["surv"],
+  };
+
+  function calcProgress(prefixes) {
+    let total = 0, checked = 0;
+    prefixes.forEach(p => {
+      document.querySelectorAll(`input[type="checkbox"][data-key^="${p}"]`).forEach(cb => {
+        total++;
+        if (cb.checked) checked++;
+      });
+    });
+    return total === 0 ? 0 : Math.round((checked / total) * 100);
+  }
+
+  function setDot(id, pct) {
+    const dot = document.getElementById(`dot-${id}`);
+    if (!dot) return;
+    dot.className = "status-dot " + (pct === 0 ? "not-started" : pct === 100 ? "complete" : "in-progress");
+  }
+
+  function updateAllProgress() {
+    let totalAll = 0, checkedAll = 0;
+
+    Object.entries(progressMap).forEach(([id, prefixes]) => {
+      const pct = calcProgress(prefixes);
+      const fill = document.getElementById(`prog-${id}`);
+      const text = document.getElementById(`prog-text-${id}`);
+      if (fill) fill.style.width = `${pct}%`;
+      if (text) text.textContent = `${pct}%`;
+      setDot(id, pct);
+    });
+
+    allCheckboxes.forEach(cb => { totalAll++; if (cb.checked) checkedAll++; });
+    const overall = totalAll === 0 ? 0 : Math.round((checkedAll / totalAll) * 100);
+    const ring = document.getElementById("overall-ring");
+    const ringText = document.getElementById("overall-pct");
+    if (ring) ring.setAttribute("stroke-dasharray", `${overall}, 100`);
+    if (ringText) ringText.textContent = `${overall}%`;
+  }
+
+  // ===== Reset =====
+  const modalOverlay   = document.getElementById("modal-reset");
+  const btnReset       = document.getElementById("btn-reset");
+  const btnResetConfirm = document.getElementById("btn-reset-confirm");
+  const btnResetCancel  = document.getElementById("btn-reset-cancel");
+
+  btnReset.addEventListener("click", () => modalOverlay.classList.add("visible"));
+  btnResetCancel.addEventListener("click", () => modalOverlay.classList.remove("visible"));
+  modalOverlay.addEventListener("click", e => { if (e.target === modalOverlay) modalOverlay.classList.remove("visible"); });
+
+  btnResetConfirm.addEventListener("click", () => {
+    localStorage.removeItem(STORAGE_KEY);
+    state = {};
+    allCheckboxes.forEach(cb => {
+      cb.checked = false;
+      cb.closest(".check-item").classList.remove("checked");
+    });
+    document.querySelectorAll("textarea[data-notes]").forEach(ta => ta.value = "");
+    document.querySelectorAll("[data-date]").forEach(i => i.value = "");
+    if (prtCycle) prtCycle.value = "spring";
+    if (prtYear)  prtYear.value  = new Date().getFullYear();
+    updateAllProgress();
+    modalOverlay.classList.remove("visible");
+  });
+
+  // ===== Init =====
+  updateAllProgress();
+})();
+</script>
+
 </body>
 </html>
